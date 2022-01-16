@@ -11,7 +11,7 @@ RSpec.describe 'Bulk discounts Edit' do
     end
 
     it 'updates the discount' do
-      # expect(page).to have_field(@bulk1.percent)
+      expect(page).to have_field(:percent, with: @bulk1.percent)
       fill_in(:percent, with: 17)
       fill_in(:threshhold, with: 7)
       click_button "Update Discount"
