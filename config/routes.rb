@@ -7,6 +7,7 @@ get '/merchants/:merchant_id/dashboard', to: 'merchants#dashboard'
 # get '/merchants/:merchant_id/items', to: 'merchant_items#index'
 
   resources :merchants, only: [:show] do
+    resources :bulk_discounts, only: [:index, :show]
     resources :dashboard, only: [:index, :show]
     resources :items
     resources :invoices, only: [:index, :show]

@@ -2,6 +2,7 @@
 <%= link_to "Invoices", merchant_invoices_path(@merchant) %>
 
 <h1><%= @merchant.name %></h1>
+<%= link_to "Bulk discounts", "/merchants/#{@merchant.id}/bulk_discounts" %>
 
 <p>Top 5 Customers</p>
 <% @merchant.top_five_customers.each do |customer| %>
