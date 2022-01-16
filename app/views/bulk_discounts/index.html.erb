@@ -4,6 +4,7 @@
   <section id='discount-<%= discount.id %>'>
     <li>Percentage discount: <%=link_to "#{discount.percent}", "/merchants/#{@merchant.id}/bulk_discounts/#{discount.id}" %>
     quantity needed: <%= discount.threshhold %></li>
+    <%= link_to "Delete #{discount.percent}", "/merchants/#{@merchant.id}/bulk_discounts/#{discount.id}", method: :delete %>
   </section>
 <% end %>
 </ul>
