@@ -73,5 +73,12 @@ RSpec.describe 'Merchant Dashboard Index' do
       expect("#{@invoice_2.id}").to appear_before("#{@invoice_3.id}")
       expect("#{@invoice_3.id}").to appear_before("#{@invoice_4.id}")
     end
+
+    it 'I see a link to view all my discounts' do
+      visit "/merchants/#{@merchant_1.id}/dashboard"
+      expect(page).to have_link("Bulk discounts")
+      click_link "Bulk discounts"
+      expect(current_path).to eq("/merchants/#{@merchant_1.id}/bulk_discounts")
+    end
   end
 end
