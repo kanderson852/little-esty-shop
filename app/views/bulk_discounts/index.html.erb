@@ -7,3 +7,4 @@
   </section>
 <% end %>
 </ul>
+<%= link_to "Create new discount", "/merchants/#{@merchant.id}/bulk_discounts/new", method: :get, params: {merchant_id: @merchant.id} %>
