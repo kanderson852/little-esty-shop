@@ -1,6 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe "Merchant invoice show" do
+  before do
+    @bulk1 = @merchant_1.bulk_discounts.create!(percent: 20, threshhold: 10)
+    @bulk2 = @merchant_1.bulk_discounts.create!(percent: 15, threshhold: 5)
+    @bulk3 = @merchant_1.bulk_discounts.create!(percent: 10, threshhold: 15)
+    @bulk4 = @merchant_1.bulk_discounts.create!(percent: 5, threshhold: 3)
+  end
   it 'shows all the information relation to the invoice' do
     visit merchant_invoice_path(@merchant_1, @invoice_1)
 
@@ -46,7 +52,21 @@ RSpec.describe "Merchant invoice show" do
 
   it 'I see the total revenue that will be generated from all of my items on the invoice' do
     visit merchant_invoice_path(@merchant_1, @invoice_4)
-    expect(page).to have_content("Total Revenue")
+    expect(page).to have_content("Total Revenue before discounts")
     expect(page).to have_content(h.number_to_currency(@invoice_4.total_revenue/100, precision: 0))
+  end
+
+  xit 'I see the total discounted revenue for my merchant from this invoice' do
+    visit merchant_invoice_path(@merchant_1, @invoice_4)
+    expect(page).to have_content("Total Revenue with discounts")
+    expect(page).to have_content('')
+  end
+
+  xit 'Next to each invoice item I see a link to the show page for the bulk discount' do
+    visit merchant_invoice_path(@merchant_1, @invoice_4)
+    within "#item-#{@item_4.id}" do
+      click_link("Discounts applied: #{@bulk1.percent}")
+      expect(current_path).to eq("/merchants/#{@merchant_1.id}/bulk_discounts/#{@bulk1.id}")
+    end
   end
 end
