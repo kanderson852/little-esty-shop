@@ -56,11 +56,25 @@ RSpec.describe "Merchant invoice show" do
     expect(page).to have_content(h.number_to_currency(@invoice_4.total_revenue/100, precision: 0))
   end
 
-  xit 'I see the total discounted revenue for my merchant from this invoice' do
+  it 'I see the total discounted revenue for my merchant from this invoice' do
     visit merchant_invoice_path(@merchant_1, @invoice_4)
     expect(page).to have_content("Total Revenue with discounts")
-    expect(page).to have_content('')
+    expect(page).to have_content(h.number_to_currency(@invoice_4.(total_revenue - discounted_revenue)/100, precision: 0))
   end
+
+  it 'In this example, no bulk discounts should be applied.' do
+    merchant_a = Merchant.create!(name: "Kelly")
+    customer_a = Customer.create!(first_name: "Customer", last_name: "1")
+    bulk_a = merchant_a.bulk_discounts.create!(percent: 20, threshhold: 10)
+    item_a = merchant_a.items.create!(name: "Item_a", description: "Description", unit_price: 16)
+    item_b = merchant_a.items.create!(name: "Item_b", description: "Description", unit_price: 16)
+    invoice_a = customer_a.invoices.create!
+    invoice_item_a = invoice_a.invoice_items.create!(item_id: item_a.id, quantity: 5, unit_price: 16, status: 2)
+    invoice_item_b = invoice_a.invoice_items.create!(item_id: item_b.id, quantity: 5, unit_price: 17, status: 2)
+    visit "merchants/#{merchant_a.id}/invoices/#{invoice_a.id}"
+    save_and_open_page
+  end
+
 
   xit 'Next to each invoice item I see a link to the show page for the bulk discount' do
     visit merchant_invoice_path(@merchant_1, @invoice_4)
