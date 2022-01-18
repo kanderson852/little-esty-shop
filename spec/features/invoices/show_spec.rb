@@ -138,11 +138,25 @@ RSpec.describe "Merchant invoice show" do
     expect(page).to have_content("Total Revenue with discounts: $905")
   end
 
-  xit 'Next to each invoice item I see a link to the show page for the bulk discount' do
-    visit merchant_invoice_path(@merchant_1, @invoice_4)
-    within "#item-#{@item_4.id}" do
-      click_link("Discounts applied: #{@bulk1.percent}")
-      expect(current_path).to eq("/merchants/#{@merchant_1.id}/bulk_discounts/#{@bulk1.id}")
+  it 'Next to each invoice item I see a link to the show page for the bulk discount' do
+    merchant_a = Merchant.create!(name: "Kelly")
+    merchant_b = Merchant.create!(name: "Kara")
+    bulk_a = merchant_a.bulk_discounts.create!(percent: 20, threshhold: 10)
+    bulk_b = merchant_a.bulk_discounts.create!(percent: 30, threshhold: 15)
+    item_a1 = merchant_a.items.create!(name: "Item_a1", description: "Description_a", unit_price: 1600)
+    item_a2 = merchant_a.items.create!(name: "Item_a2", description: "Description_b", unit_price: 2300)
+    item_b = merchant_b.items.create!(name: "Item_b", description: "Description_b", unit_price: 3400)
+    customer_a = Customer.create!(first_name: "Customera", last_name: "1a")
+    invoice_a = customer_a.invoices.create!
+    ii_a = invoice_a.invoice_items.create!(item_id: item_a1.id, quantity: 12, unit_price: item_a1.unit_price, status: 0)
+    invoice_a.invoice_items.create!(item_id: item_a2.id, quantity: 15, unit_price: item_a2.unit_price, status: 0)
+    invoice_a.invoice_items.create!(item_id: item_b.id, quantity: 15, unit_price: item_b.unit_price, status: 0)
+    visit merchant_invoice_path(merchant_a, invoice_a)
+    within "#item-#{ii_a.id}" do
+      # require "pry"; binding.pry
+      save_and_open_page
+      click_link("#{ii_a.item.name}")
+      expect(current_path).to eq("/merchants/#{merchant_a.id}/bulk_discounts/#{bulk_a.id}")
     end
   end
 end
