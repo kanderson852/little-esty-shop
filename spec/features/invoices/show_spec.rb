@@ -59,22 +59,84 @@ RSpec.describe "Merchant invoice show" do
   it 'I see the total discounted revenue for my merchant from this invoice' do
     visit merchant_invoice_path(@merchant_1, @invoice_4)
     expect(page).to have_content("Total Revenue with discounts")
-    expect(page).to have_content(h.number_to_currency(@invoice_4.(total_revenue - discounted_revenue)/100, precision: 0))
+    expect(page).to have_content("$998")
   end
 
   it 'In this example, no bulk discounts should be applied.' do
     merchant_a = Merchant.create!(name: "Kelly")
-    customer_a = Customer.create!(first_name: "Customer", last_name: "1")
     bulk_a = merchant_a.bulk_discounts.create!(percent: 20, threshhold: 10)
-    item_a = merchant_a.items.create!(name: "Item_a", description: "Description", unit_price: 16)
-    item_b = merchant_a.items.create!(name: "Item_b", description: "Description", unit_price: 16)
+    item_a = merchant_a.items.create!(name: "Item_a", description: "Description_a", unit_price: 1600)
+    item_b = merchant_a.items.create!(name: "Item_b", description: "Description_b", unit_price: 2300)
+    customer_a = Customer.create!(first_name: "Customera", last_name: "1a")
     invoice_a = customer_a.invoices.create!
-    invoice_item_a = invoice_a.invoice_items.create!(item_id: item_a.id, quantity: 5, unit_price: 16, status: 2)
-    invoice_item_b = invoice_a.invoice_items.create!(item_id: item_b.id, quantity: 5, unit_price: 17, status: 2)
-    visit "merchants/#{merchant_a.id}/invoices/#{invoice_a.id}"
-    save_and_open_page
+    ii_a = invoice_a.invoice_items.create!(item_id: item_a.id, quantity: 5, unit_price: item_a.unit_price, status: 0)
+    ii_b = invoice_a.invoice_items.create!(item_id: item_b.id, quantity: 5, unit_price: item_b.unit_price, status: 0)
+    visit merchant_invoice_path(merchant_a, invoice_a)
+    expect(page).to have_content("Total Revenue before discounts: $195")
+    expect(page).to have_content("Total Revenue with discounts: $195")
   end
 
+  it 'In this example, Item a should be discounted at 20% off. Item b should not be discounted.' do
+    merchant_a = Merchant.create!(name: "Kelly")
+    bulk_a = merchant_a.bulk_discounts.create!(percent: 20, threshhold: 10)
+    item_a = merchant_a.items.create!(name: "Item_a", description: "Description_a", unit_price: 1600)
+    item_b = merchant_a.items.create!(name: "Item_b", description: "Description_b", unit_price: 2300)
+    customer_a = Customer.create!(first_name: "Customera", last_name: "1a")
+    invoice_a = customer_a.invoices.create!
+    invoice_a.invoice_items.create!(item_id: item_a.id, quantity: 10, unit_price: 1600, status: 2)
+    invoice_a.invoice_items.create!(item_id: item_b.id, quantity: 5, unit_price: 2300, status: 2)
+    visit merchant_invoice_path(merchant_a, invoice_a)
+    expect(page).to have_content("Total Revenue before discounts: $275")
+    expect(page).to have_content("Total Revenue with discounts: $243")
+  end
+
+  it 'In this example, Item A should discounted at 20% off, and Item B should discounted at 30% off.' do
+    merchant_a = Merchant.create!(name: "Kelly")
+    bulk_a = merchant_a.bulk_discounts.create!(percent: 20, threshhold: 10)
+    bulk_b = merchant_a.bulk_discounts.create!(percent: 30, threshhold: 15)
+    item_a = merchant_a.items.create!(name: "Item_a", description: "Description_a", unit_price: 1600)
+    item_b = merchant_a.items.create!(name: "Item_b", description: "Description_b", unit_price: 2300)
+    customer_a = Customer.create!(first_name: "Customera", last_name: "1a")
+    invoice_a = customer_a.invoices.create!
+    invoice_a.invoice_items.create!(item_id: item_a.id, quantity: 12, unit_price: item_a.unit_price, status: 0)
+    invoice_a.invoice_items.create!(item_id: item_b.id, quantity: 15, unit_price: item_b.unit_price, status: 0)
+    visit merchant_invoice_path(merchant_a, invoice_a)
+    expect(page).to have_content("Total Revenue before discounts: $537")
+    expect(page).to have_content("Total Revenue with discounts: $395")
+  end
+
+  it 'In this example, Both Item A and Item B should discounted at 20% off.' do
+    merchant_a = Merchant.create!(name: "Kelly")
+    bulk_a = merchant_a.bulk_discounts.create!(percent: 20, threshhold: 10)
+    bulk_b = merchant_a.bulk_discounts.create!(percent: 15, threshhold: 15)
+    item_a = merchant_a.items.create!(name: "Item_a", description: "Description_a", unit_price: 1600)
+    item_b = merchant_a.items.create!(name: "Item_b", description: "Description_b", unit_price: 2300)
+    customer_a = Customer.create!(first_name: "Customera", last_name: "1a")
+    invoice_a = customer_a.invoices.create!
+    invoice_a.invoice_items.create!(item_id: item_a.id, quantity: 12, unit_price: item_a.unit_price, status: 0)
+    invoice_a.invoice_items.create!(item_id: item_b.id, quantity: 15, unit_price: item_b.unit_price, status: 0)
+    visit merchant_invoice_path(merchant_a, invoice_a)
+    expect(page).to have_content("Total Revenue before discounts: $537")
+    expect(page).to have_content("Total Revenue with discounts: $430")
+  end
+
+  it 'In this example, Item A1 should discounted at 20% off, and Item A2 should discounted at 30% off. Item B should not be discounted.' do
+    merchant_a = Merchant.create!(name: "Kelly")
+    merchant_b = Merchant.create!(name: "Kara")
+    bulk_a = merchant_a.bulk_discounts.create!(percent: 20, threshhold: 10)
+    bulk_b = merchant_a.bulk_discounts.create!(percent: 30, threshhold: 15)
+    item_a1 = merchant_a.items.create!(name: "Item_a1", description: "Description_a", unit_price: 1600)
+    item_a2 = merchant_a.items.create!(name: "Item_a2", description: "Description_b", unit_price: 2300)
+    item_b = merchant_b.items.create!(name: "Item_b", description: "Description_b", unit_price: 3400)
+    customer_a = Customer.create!(first_name: "Customera", last_name: "1a")
+    invoice_a = customer_a.invoices.create!
+    invoice_a.invoice_items.create!(item_id: item_a1.id, quantity: 12, unit_price: item_a1.unit_price, status: 0)
+    invoice_a.invoice_items.create!(item_id: item_a2.id, quantity: 15, unit_price: item_a2.unit_price, status: 0)
+    invoice_a.invoice_items.create!(item_id: item_b.id, quantity: 15, unit_price: item_b.unit_price, status: 0)
+    visit merchant_invoice_path(merchant_a, invoice_a)
+    expect(page).to have_content("Total Revenue before discounts: $1,047")
+    expect(page).to have_content("Total Revenue with discounts: $905")
+  end
 
   xit 'Next to each invoice item I see a link to the show page for the bulk discount' do
     visit merchant_invoice_path(@merchant_1, @invoice_4)
