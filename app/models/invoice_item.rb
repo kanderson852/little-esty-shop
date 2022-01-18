@@ -7,6 +7,7 @@ class InvoiceItem < ApplicationRecord
   enum status: { pending: 0, packaged: 1, shipped: 2 }
 
   def selected_discount
-    self.bulk_discounts.max_by(&:percent)
+    self.bulk_discounts.where("threshhold <= ?", quantity)
+    .max_by(&:percent)
   end
 end

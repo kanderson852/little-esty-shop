@@ -153,8 +153,7 @@ RSpec.describe "Merchant invoice show" do
     invoice_a.invoice_items.create!(item_id: item_b.id, quantity: 15, unit_price: item_b.unit_price, status: 0)
     visit merchant_invoice_path(merchant_a, invoice_a)
     within "#item-#{ii_a.id}" do
-      # require "pry"; binding.pry
-      save_and_open_page
+      # save_and_open_page
       click_link("#{ii_a.item.name}")
       expect(current_path).to eq("/merchants/#{merchant_a.id}/bulk_discounts/#{bulk_a.id}")
     end
