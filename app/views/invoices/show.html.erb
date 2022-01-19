@@ -16,6 +16,13 @@
     <h3>Name: <%= invoice_item.item.name %> </h3>
     <p>Quantity: <%= invoice_item.quantity %></p>
     <p>Price: <%= number_to_currency(invoice_item.unit_price/100, precision: 0) %></p>
+    <p><% if invoice_item.bulk_discounts.count != 0 %>
+        <%  invoice_item.bulk_discounts.each do |discount| %>
+          <%  if discount == invoice_item.selected_discount %>
+            Discounts Applied:<%= link_to "#{invoice_item.item.name}", "/merchants/#{@merchant.id}/bulk_discounts/#{discount.id}"%>
+          <% end %>
+        <% end %>
+    <% end %></p>
     <p>
       <%= form_with model: [@merchant, invoice_item], local: true do |form| %>
         <%= form.label "Status:" %>

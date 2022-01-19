@@ -40,7 +40,7 @@ RSpec.describe Invoice do
                          @invoice_7, @invoice_8, @invoice_9,
                          @invoice_10, @invoice_11, @invoice_12,
                          @invoice_13, @invoice_14, @invoice_15,
-                         @invoice_19, @invoice_20]
+                         @invoice_19, @invoice_20, @invoice_a]
 
       #Expected result ordered oldest to newest
 

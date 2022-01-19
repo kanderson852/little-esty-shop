@@ -16,11 +16,5 @@ RSpec.describe 'Bulk discounts new' do
       expect(current_path).to eq("/merchants/#{@merchant_1.id}/bulk_discounts")
       expect(page).to have_content("Percentage discount: 25")
     end
-
-    xit 'I get an error if form is filled out incorrectly' do
-      click_button("Submit")
-      expect(current_path).to eq("/merchants/#{@merchant_1.id}/bulk_discounts/new")
-      expect(page).to have_content("Error: Discount can't be blank, Threshhold can't be blank")
-    end
   end
 end
